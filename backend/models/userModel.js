@@ -6,7 +6,6 @@ const UserSchema = new mongoose.Schema({
     type: String, 
     unique:true,
         minLength:[5,"Minimum 5 characters required"],
-        maxLength:[15,"Maximum 15 characters allowed"],
   },
   email: { 
     type: String, 

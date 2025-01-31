@@ -42,6 +42,7 @@ const userController={
         
     const userCreated=await User.create({        
         email,
+        username:email
     })
     if(!userCreated){
         throw new Error("User creation failed")
