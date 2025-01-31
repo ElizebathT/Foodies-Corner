@@ -1,0 +1,113 @@
+const express = require("express");
+const asyncHandler = require("express-async-handler");
+const Restaurant = require("../models/restaurantModel");
+const MenuItem = require("../models/menuItemModel");
+
+const restaurantController = {
+    display: asyncHandler(async (req, res) => {
+        const restaurants = await Restaurant.find().populate("menu");
+        res.send(restaurants);
+    }),
+
+    add: asyncHandler(async (req, res) => {
+        const { name, location, rating, image, contact, cuisine, opening_time, closing_time } = req.body;
+
+        // Check if the restaurant already exists
+        const itemExist = await Restaurant.findOne({ $and: [{ owner: req.user.id, name }] });
+
+        if (itemExist) {
+            throw new Error("Restaurant already exists");
+        }
+
+        // Create new restaurant
+        const newItem = await Restaurant.create({
+            name,
+            location,
+            rating,
+            image,
+            contact,
+            cuisine,
+            opening_time,
+            closing_time,
+            owner: req.user.id
+        });
+
+        if (!newItem) {
+            throw new Error("Creation failed");
+        }
+
+        res.send("New Restaurant added successfully");
+    }),
+
+    edit: asyncHandler(async (req, res) => {
+        const { name, location, rating, image, contact, cuisine, opening_time, closing_time } = req.body;
+
+        // Find restaurant by name and owner
+        const restaurant = await Restaurant.findOne({ name, owner: req.user.id });
+
+        if (!restaurant) {
+            throw new Error("Restaurant not found or unauthorized");
+        }
+
+        // Update restaurant details
+        restaurant.name = name || restaurant.name;
+        restaurant.location = location || restaurant.location;
+        restaurant.rating = rating || restaurant.rating;
+        restaurant.image = image || restaurant.image;
+        restaurant.contact = contact || restaurant.contact;
+        restaurant.cuisine = cuisine || restaurant.cuisine;
+        restaurant.opening_time = opening_time || restaurant.opening_time;
+        restaurant.closing_time = closing_time || restaurant.closing_time;
+
+        // Save updated restaurant
+        const updatedRestaurant = await restaurant.save();
+
+        res.send({
+            message: "Restaurant updated successfully",
+            restaurant: updatedRestaurant
+        });
+    }),
+
+    delete: asyncHandler(async (req, res) => {
+        const { name } = req.body;
+
+        // Find restaurant by name and owner
+        const restaurant = await Restaurant.findOne({ name, owner: req.user.id });
+
+        if (!restaurant) {
+            throw new Error("Restaurant not found or unauthorized");
+        }
+
+        // Delete restaurant
+        await restaurant.deleteOne();
+
+        res.send("Restaurant deleted successfully");
+    }),
+
+    search: asyncHandler(async (req, res) => {
+        const { keyword, location, cuisine } = req.body;
+        const searchCriteria = {};
+
+        // Build search criteria based on provided filters
+        if (keyword) {
+            searchCriteria.name = { $regex: keyword, $options: "i" };
+        }
+        if (location) {
+            searchCriteria.location = { $regex: location, $options: "i" };
+        }
+        if (cuisine) {
+            searchCriteria.cuisine = { $in: cuisine };  // Searching for any cuisine from the array
+        }
+
+        // Search restaurants based on criteria
+        const restaurants = await Restaurant.find(searchCriteria).populate("menu");
+
+        if (restaurants.length === 0) {
+            res.send("No restaurants found matching the search criteria.");
+        }
+
+        res.send(restaurants);
+    })
+};
+
+module.exports = restaurantController;
