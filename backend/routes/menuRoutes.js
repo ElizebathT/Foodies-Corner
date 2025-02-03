@@ -1,9 +1,10 @@
 const express = require("express");
 const menuController = require("../controllers/menuController");
 const userAuthentication = require("../middlewares/userAuthentication");
+const  upload  = require("../config/cloudinary");
 const menuRouter = express.Router();
 
-menuRouter.post("/add", userAuthentication,menuController.createMenuItem);
+menuRouter.post("/add", userAuthentication,upload.single("image"),menuController.createMenuItem);
 
 menuRouter.get("/viewall", userAuthentication,menuController.getAllMenuItems);
 

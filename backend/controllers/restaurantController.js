@@ -2,6 +2,7 @@ const express = require("express");
 const asyncHandler = require("express-async-handler");
 const Restaurant = require("../models/restaurantModel");
 const MenuItem = require("../models/menuItemModel");
+const { cloudinary, upload } = require("../config/cloudinary");
 
 const restaurantController = {
     display: asyncHandler(async (req, res) => {
@@ -18,13 +19,13 @@ const restaurantController = {
         if (itemExist) {
             throw new Error("Restaurant already exists");
         }
-
+        
         // Create new restaurant
         const newItem = await Restaurant.create({
             name,
             location,
             rating,
-            image,
+            image: req.file.path,
             contact,
             cuisine,
             opening_time,
@@ -107,7 +108,12 @@ const restaurantController = {
         }
 
         res.send(restaurants);
-    })
+    }),
+    view:asyncHandler(async (req, res) => {
+        const { name}=req.body
+        const restaurants = await Restaurant.find({name}).populate("menu").populate("reviews");
+        res.send(restaurants);
+    }),
 };
 
 module.exports = restaurantController;

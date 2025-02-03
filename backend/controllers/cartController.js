@@ -42,8 +42,12 @@ const cartController={
         cart.totalAmount = cart.totalAmount + quantity * menuItem.price
       
         // Save the updated cart
-        await cart.save();
-        res.json(cart);
+        const completed=await cart.save();
+        if(!completed)
+        {
+          res.send('Error in adding to cart')
+        }
+        res.send(cart);
       }),
 
     getCart : asyncHandler(async (req, res) => {    

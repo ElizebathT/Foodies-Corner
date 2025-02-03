@@ -15,6 +15,12 @@ const ReviewSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
+  rating: { 
+    type: Number, 
+    default: 0,
+    min: 0,
+    max: 10
+  },
   categories: [{ type: String }], // Categories assigned based on text analysis
   createdAt: { 
     type: Date, 

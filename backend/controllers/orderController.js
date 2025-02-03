@@ -3,6 +3,8 @@ const Restaurant = require("../models/restaurantModel");
 const MenuItem = require("../models/menuItemModel");
 const asyncHandler = require("express-async-handler");
 const Cart = require("../models/cartModel");
+const User = require("../models/userModel");
+const Delivery = require("../models/deliveryModel");
 
 const orderController = {
     createOrder: asyncHandler(async (req, res) => {
@@ -13,6 +15,21 @@ const orderController = {
           return res.send("Cart is empty");
         }
   
+  
+        
+        const driver = await User.findOne({ role: "driver", isAvailable: true }); 
+
+        if (!driver) {
+            return res.status(500).send("No available drivers at the moment.");
+        }
+
+        const delivery = new Delivery({
+            restaurant: cart.items[0].menuItem.restaurant,
+            driver: driver._id, // Assign driver
+            status: "Out for Delivery",
+            estimatedDeliveryTime: 60,
+        });
+        
         const order = new Order({
           user: userId,
           restaurant: cart.items[0].menuItem.restaurant,
@@ -20,13 +37,19 @@ const orderController = {
           totalAmount: cart.totalAmount,
           paymentStatus: "Pending", 
           estimatedPreparationTime: 30, 
+          delivery:delivery.id
         });
-  
         const completed=await order.save();
+        delivery.order=order.id
         await Cart.findOneAndDelete({ user: userId });
         if(!completed){
             res.send('Order creation failed')
         }
+        const deliveryCreated = await delivery.save();
+        if(!deliveryCreated){
+          res.send('Delivery not initiated')
+        }
+        
         res.send('Order placed successfully');
         
     }),

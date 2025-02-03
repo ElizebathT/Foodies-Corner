@@ -25,7 +25,7 @@ const menuController = {
             name,
             description,
             price,
-            image,
+            image:req.file.path,
             category,
             restaurant
         });
@@ -104,7 +104,7 @@ const menuController = {
         // Save the updated menu item
         const updatedMenuItem = await menuItem.save();
 
-        res.json({
+        res.send({
             message: "Menu item updated successfully",
             menuItem: updatedMenuItem
         });

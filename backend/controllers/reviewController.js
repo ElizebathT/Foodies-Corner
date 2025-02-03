@@ -20,7 +20,7 @@ const categorizeReview = (comment) => {
 
 const reviewController={
 addReview : asyncHandler(async (req, res) => {
-    const { name,comment } = req.body;
+    const { name,comment,rating } = req.body;
     const userId=req.user.id
     
     if (!comment) {
@@ -39,6 +39,7 @@ addReview : asyncHandler(async (req, res) => {
       user: userId,
       restaurant: restaurantId,
       comment,
+      rating,
       categories
     });
 
@@ -70,7 +71,7 @@ getReviews : asyncHandler(async (req, res) => {
 filterReviewsByCategory :asyncHandler(async (req, res) => {
         const { category } = req.body;
     
-        if (!["service", "food", "location"].includes(category)) {
+        if (!["service", "food"].includes(category)) {
             res.send("Invalid category");
         }
     

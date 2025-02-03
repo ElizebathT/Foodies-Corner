@@ -9,12 +9,7 @@ const RestaurantSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
-  rating: { 
-    type: Number, 
-    default: 0,
-    min: 0,
-    max: 10
-  },
+  
   image: { 
     type: String 
   },

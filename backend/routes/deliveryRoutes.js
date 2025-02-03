@@ -1,11 +1,10 @@
 const express = require("express");
-const { assignDelivery, updateDeliveryStatus, getDeliveryByOrder } = require("../controllers/deliveryController");
-const { protect } = require("../middlewares/authMiddleware");
+const deliveryController = require("../controllers/deliveryController");
+const userAuthentication = require("../middlewares/userAuthentication");
 
-const router = express.Router();
+const deliveryRouter = express.Router();
 
-router.post("/", protect, assignDelivery);
-router.put("/:deliveryId", protect, updateDeliveryStatus);
-router.get("/order/:orderId", protect, getDeliveryByOrder);
+deliveryRouter.put("/update", userAuthentication, deliveryController.updateDeliveryStatus);
+deliveryRouter.get("/get", userAuthentication, deliveryController.getDeliveryByOrder);
 
-module.exports = router;
+module.exports = deliveryRouter;
