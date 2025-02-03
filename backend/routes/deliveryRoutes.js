@@ -6,5 +6,6 @@ const deliveryRouter = express.Router();
 
 deliveryRouter.put("/update", userAuthentication, deliveryController.updateDeliveryStatus);
 deliveryRouter.get("/get", userAuthentication, deliveryController.getDeliveryByOrder);
+deliveryRouter.get("/get", userAuthentication, deliveryController.sendOTP);
 
 module.exports = deliveryRouter;

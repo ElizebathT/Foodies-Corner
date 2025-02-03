@@ -17,6 +17,9 @@ const OrderSchema = new mongoose.Schema(
       ref: "Delivery",
       required: true,
     },
+    otp:{
+      type:Number,      
+    },
     items: [
       {
         menuItem: {
@@ -37,7 +40,7 @@ const OrderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Pending", "Accepted", "Preparing", "Ready for Pickup", "Completed", "Cancelled"],
+      enum: ["Pending", "Accepted", "Preparing", "Ready for Pickup", "Delivered", "Cancelled"],
       default: "Pending",
     },
     paymentStatus: {
@@ -54,12 +57,17 @@ const OrderSchema = new mongoose.Schema(
       default: "",
     },
     paymentDetails: {
-      transactionId: String,
-      paymentMethod: {
-        type: String,
-        enum: ["Credit Card", "Debit Card", "UPI", "Cash", "Wallet"],
-      },
+      type: String,
+      default:"Cash on Delivery",
     },
+    address:{
+      type:String,
+      require:true
+    },
+    contact:{
+      type:Number,
+      require:true
+    }
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt
 );

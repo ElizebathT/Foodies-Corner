@@ -9,7 +9,9 @@ const RestaurantSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
-  
+  googleMapsUrl:{
+    type:String
+  },
   image: { 
     type: String 
   },
@@ -41,6 +43,9 @@ const RestaurantSchema = new mongoose.Schema({
   closing_time: {
     type: String,  
     required: true
+  },
+  address:{
+    type:String,
   }
 });
 
