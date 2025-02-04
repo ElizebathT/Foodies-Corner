@@ -5,16 +5,12 @@ const asyncHandler = require("express-async-handler");
 const Cart = require("../models/cartModel");
 const User = require("../models/userModel");
 const Delivery = require("../models/deliveryModel");
-const crypto = require('crypto');
 
-const generateOTP = () => {
-  return crypto.randomInt(100000, 999999);
-}
 
 const orderController = {
   createOrder: asyncHandler(async (req, res) => {
     const userId = req.user.id;
-    const { address, contact } = req.user;  // Get delivery address and contact number from req.user
+    const { address, contact } = req.body;  
     const cart = await Cart.findOne({ user: userId }).populate("items.menuItem");
 
     if (!cart || cart.items.length === 0) {
@@ -33,19 +29,16 @@ const orderController = {
         status: "Out for Delivery",
         estimatedDeliveryTime: 60
     });
-
-    const otp = generateOTP();
     const order = new Order({
         user: userId,
         restaurant: cart.items[0].menuItem.restaurant,
         items: cart.items,
-        otp: otp,
         totalAmount: cart.totalAmount,
         paymentStatus: "Pending",
         estimatedPreparationTime: 30,
         delivery: delivery.id,
-        address: address, // Add delivery address to the order
-        contact: contact, // Add contact number to the order
+        address,
+        contact, 
     });
 
     const completed = await order.save();
@@ -68,8 +61,7 @@ const orderController = {
   }),
 
   
-    getOrdersByUser: asyncHandler(async (req, res) => {     
-      console.log('hi');
+    getOrdersByUser: asyncHandler(async (req, res) => {    
         const orders = await Order.find({ user: req.user.id })
           .populate("restaurant")
           .populate("items.menuItem");
@@ -80,7 +72,45 @@ const orderController = {
         }
         res.send(orders);    
     }),
-  
+    cancelOrder:asyncHandler(async (req, res) => {
+      const { orderId, reason } = req.body; 
+        
+      const order = await Order.findById(orderId).populate("delivery");
+    
+      if (!order) {
+        return res.status(404).send("Order not found.");
+      }
+    
+      if (order.delivery.status === "Out for Delivery") {
+       res.send("Order cannot be cancelled once out for delivery.");
+      }
+    
+      // Update the order status to cancelled and add the reason
+      order.status = "Cancelled";
+      order.cancellationReason = reason;
+    
+      // Optionally, update the delivery status
+      if (order.delivery) {
+        await Delivery.deleteOne({ _id: order.delivery });
+      }
+    
+      const cancelledOrder = await order.save();
+    
+      if (!cancelledOrder) {
+        return res.send("Failed to cancel the order.");
+      }
+    
+      // Optionally, mark the driver as available again (if applicable)
+      const driver = await User.findById(order.delivery.driver);
+      if (driver) {
+        driver.isAvailable = true;
+        await driver.save();
+      }
+    
+      res.send("Order cancelled successfully.");
+    })
+    
+    
     
   };
 module.exports=orderController

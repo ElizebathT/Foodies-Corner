@@ -1,7 +1,7 @@
 const express = require("express");
 const restaurantController = require("../controllers/restaurantController");
 const userAuthentication = require("../middlewares/userAuthentication");
-const  upload  = require("../config/cloudinary");
+const  upload  = require("../middlewares/cloudinary");
 const restaurantRoutes = express.Router();
 
 restaurantRoutes.get("/display",userAuthentication, restaurantController.display);

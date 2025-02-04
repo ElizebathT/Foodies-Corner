@@ -2,7 +2,7 @@ const express = require("express");
 const asyncHandler = require("express-async-handler");
 const Restaurant = require("../models/restaurantModel");
 const MenuItem = require("../models/menuItemModel");
-const { cloudinary, upload } = require("../config/cloudinary");
+const { cloudinary, upload } = require("../middlewares/cloudinary");
 
 const restaurantController = {
     display: asyncHandler(async (req, res) => {
