@@ -22,12 +22,24 @@ const UserSchema = new mongoose.Schema({
   },
   role: { 
     type: String, 
-    enum: ["customer", "restaurant","driver"], 
+    enum: ["customer", "restaurant","driver","admin"], 
     default: "customer" 
   },
   isAvailable: {
     type:Boolean,
     default:true
+  },
+  dietaryPreferences: {
+    type: [String],
+    default: []
+  },
+  allergies: {
+    type: [String],
+    default: []
+  },
+  verified: {
+    type:Boolean,
+    default:false
   }
 });
 

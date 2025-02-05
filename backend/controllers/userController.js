@@ -42,7 +42,8 @@ const userController={
         
     const userCreated=await User.create({        
         email,
-        username:email
+        username:email,
+        verified:true
     })
     if(!userCreated){
         throw new Error("User creation failed")
@@ -50,6 +51,7 @@ const userController={
     const payload={
         email:userCreated.email,
         id:userCreated.id
+        
     }
     const token=jwt.sign(payload,process.env.JWT_SECRET_KEY)
     res.cookie("token",token,{
@@ -90,7 +92,7 @@ const userController={
     res.send("User logged out")
     }),
     profile:asyncHandler(async (req, res) => {
-        const { username, email, password, address, role } = req.body;
+        const { username, email, password, address, role, dietaryPreferences, allergies } = req.body;
         const { userId } = req.user.id; 
         const user = await User.findOne({id:userId});
         if (!user) {
@@ -107,6 +109,8 @@ const userController={
         user.password = hashed_password;
         user.address = address || user.address;
         user.role = role || user.role;
+        user.dietaryPreferences = dietaryPreferences || user.dietaryPreferences;
+        user.allergies = allergies || user.allergies;
     
         const updatedUser = await user.save();
     
@@ -115,6 +119,20 @@ const userController={
         }
         res.send(user);
     }),
+
+    getUserProfile : asyncHandler(async (req, res) => {
+        const userId = req.user.id; 
+    
+        const user = await User.findById(userId).select("-password"); 
+        if (!user) {
+            throw new Error("User not found");
+        }
+    
+        res.send({
+            message: "User details retrieved successfully",
+            user
+        });
+    })
 
 }
 module.exports=userController

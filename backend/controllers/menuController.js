@@ -2,11 +2,12 @@ const express = require("express");
 const asyncHandler = require("express-async-handler");
 const MenuItem = require("../models/menuItemModel");
 const Restaurant = require("../models/restaurantModel");
+const User = require("../models/userModel");
 
 const menuController = {
     // Create a new menu item
     createMenuItem: asyncHandler(async (req, res) => {
-        const { name, description, price, image, category, restaurantName } = req.body;
+        const { name, description, price, image, category, restaurantName, availability, discount } = req.body;
         const restaurantExist = await Restaurant.findOne({name: restaurantName});
         
         if(!restaurantExist){
@@ -27,7 +28,9 @@ const menuController = {
             price,
             image:req.file.path,
             category,
-            restaurant
+            restaurant,
+            availability: availability || true, 
+            discount: discount || { percentage: 0, validUntil: null }
         });
 
         if (!newItem) {
@@ -84,7 +87,7 @@ const menuController = {
 
     // Update a menu item
     updateMenuItem: asyncHandler(async (req, res) => {
-        const { name, description, price, image, category, restaurant } = req.body;
+        const { name, description, price, image, category, restaurant, availability, discount } = req.body;
 
         // Find the menu item by ID
         const menuItem = await MenuItem.findOne({name});
@@ -100,6 +103,8 @@ const menuController = {
         menuItem.image = image || menuItem.image;
         menuItem.category = category || menuItem.category;
         menuItem.restaurant = restaurant || menuItem.restaurant;
+        menuItem.availability = availability !== undefined ? availability : menuItem.availability; // Only update if defined
+        menuItem.discount = discount || menuItem.discount;
 
         // Save the updated menu item
         const updatedMenuItem = await menuItem.save();
@@ -130,7 +135,35 @@ const menuController = {
         await menuItem.deleteOne();
 
         res.json({ message: "Menu item deleted successfully" });
-    })
+    }),
+    filterMenuItems:asyncHandler(async (req, res) => {
+          const currentUser = req.user; 
+          const { dietaryPreferences, allergies } = await User.findOne({_id:currentUser.id});
+          const { category, priceMin, priceMax } = req.body;
+          let filterQuery = {};
+          if (dietaryPreferences && dietaryPreferences.length > 0) {
+            filterQuery.dietaryRestrictions = { $in: dietaryPreferences };
+        }
+        if (allergies && allergies.length > 0) {
+            filterQuery.name = { $nin: allergies };
+        }
+          if (category) {
+            filterQuery.category = category;
+          }
+          if (priceMin || priceMax) {
+            filterQuery.price = {};
+            if (priceMin) filterQuery.price.$gte = priceMin;
+            if (priceMax) filterQuery.price.$lte = priceMax;
+          }
+          const filteredMenuItems = await MenuItem.find(filterQuery);
+      
+          if (!filteredMenuItems) {
+            res.send({ message: "No menu items found matching your criteria" });
+          }
+      
+         res.send({ menuItems: filteredMenuItems });
+        
+      })
 };
 
 module.exports = menuController;

@@ -8,6 +8,7 @@ const orderRouter = require("./orderRoutes");
 const passport = require("passport");
 const userController = require("../controllers/userController");
 const deliveryRouter = require("./deliveryRoutes");
+const adminRouter = require("./adminRoutes");
 const router=express()
 
 router.use("/users", userRoutes);
@@ -17,6 +18,7 @@ router.use("/menus", menuRouter);
 router.use("/cart", cartRouter);
 router.use("/orders", orderRouter);
 router.use("/delivery", deliveryRouter);
+router.use("/admin", adminRouter);
 router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
 router.get("/auth/google/callback",passport.authenticate("google", { failureRedirect: "/" }),userController.googleRegister);

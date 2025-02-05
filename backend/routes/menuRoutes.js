@@ -11,6 +11,7 @@ menuRouter.get("/viewall", userAuthentication,menuController.getAllMenuItems);
 menuRouter.get("/display", userAuthentication,menuController.getMenuItemsByRestaurant);
 
 menuRouter.get("/search",userAuthentication, menuController.getMenuItemById);
+menuRouter.get("/filter",userAuthentication, menuController.filterMenuItems);
 
 menuRouter.put("/edit",userAuthentication, menuController.updateMenuItem);
 

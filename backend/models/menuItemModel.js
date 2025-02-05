@@ -24,7 +24,20 @@ const MenuItemSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, 
     ref: "Restaurant", 
     required: true 
-  }
+  },
+  availability: { 
+    type: Boolean, 
+    default: true 
+  },
+  discount: {
+    percentage: { 
+      type: Number, 
+      default: 0 
+    },  
+    validUntil: { 
+      type: Date 
+    } 
+  },
 });
 
 const MenuItem = mongoose.model("MenuItem", MenuItemSchema);
