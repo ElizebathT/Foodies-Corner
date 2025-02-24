@@ -11,7 +11,7 @@ const restaurantController = {
     }),
 
     add: asyncHandler(async (req, res) => {
-        const { name, location, rating, image, contact, cuisine, opening_time, closing_time,address } = req.body;
+        const { name, location, contact, cuisine, opening_time, closing_time,address } = req.body;
 
         // Check if the restaurant already exists
         const itemExist = await Restaurant.findOne({ $and: [{ owner: req.user.id, name }] });
@@ -33,7 +33,6 @@ const restaurantController = {
         const newItem = await Restaurant.create({
             name,
             location,
-            rating,
             googleMapsUrl,
             image: req.file.path,
             contact,

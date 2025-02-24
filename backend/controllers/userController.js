@@ -5,7 +5,7 @@ const asyncHandler=require("express-async-handler")
 const express=require('express')
 const userController={
     register : asyncHandler(async(req,res)=>{        
-      const {username,email,password,address,role}=req.body
+      const {username,email,password,role}=req.body
       const userExits=await User.findOne({username})
       if(userExits){
           throw new Error("User already exists")
@@ -15,7 +15,6 @@ const userController={
           username,
           email,
           password:hashed_password,
-          address,
           role
       })
       if(!userCreated){
