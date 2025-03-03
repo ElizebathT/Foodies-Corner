@@ -10,7 +10,12 @@ const userController = require("../controllers/userController");
 const deliveryRouter = require("./deliveryRoutes");
 const adminRouter = require("./adminRoutes");
 const complaintRouter = require("./complaintRoutes");
+const paymentRoutes = require("./paymentRoutes");
 const router=express()
+
+router.use("/payment", paymentRoutes);
+
+router.use(express.json())
 
 router.use("/users", userRoutes);
 router.use("/restaurants", restaurantRoutes);

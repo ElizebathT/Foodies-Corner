@@ -46,6 +46,10 @@ const RestaurantSchema = new mongoose.Schema({
   },
   address:{
     type:String,
+  },
+  verified:{
+    type:Boolean,
+    default:false
   }
 });
 

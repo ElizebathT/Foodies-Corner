@@ -29,5 +29,21 @@ const adminController={
         await user.save()
         res.send("User verified")
     }),
+
+    verifyRestaurant:asyncHandler(async (req, res) => {
+        const {id}=req.body
+        const restaurant= await Restaurant.findById(id)
+        if(!restaurant){
+            throw new Error('Restaurant not found')
+        }
+        restaurant.verified=true
+        await restaurant.save()
+        res.send("Restaurant verified")
+    }),
+
+    displayRestaurants: asyncHandler(async (req, res) => {
+        const restaurants = await Restaurant.find({verified:false});
+        res.send(restaurants);
+    }),
 }
 module.exports=adminController

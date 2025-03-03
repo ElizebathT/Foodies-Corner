@@ -14,8 +14,9 @@ const orderController = {
     const cart = await Cart.findOne({ user: userId }).populate("items.menuItem");
 
     if (!cart || cart.items.length === 0) {
-        return res.send("Cart is empty");
-    }
+      return res.status(400).json({ message: "Cart is empty" });
+  }
+  
 
     const driver = await User.findOne({ role: "driver", isAvailable: true });
 
@@ -82,8 +83,9 @@ const orderController = {
       }
     
       if (order.delivery.status === "Out for Delivery") {
-       res.send("Order cannot be cancelled once out for delivery.");
-      }
+        return res.status(403).json({ message: "Order cannot be cancelled once out for delivery." });
+    }
+    
     
       // Update the order status to cancelled and add the reason
       order.status = "Cancelled";
