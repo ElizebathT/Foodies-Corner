@@ -11,6 +11,7 @@ const deliveryRouter = require("./deliveryRoutes");
 const adminRouter = require("./adminRoutes");
 const complaintRouter = require("./complaintRoutes");
 const paymentRoutes = require("./paymentRoutes");
+const feedbackRouter = require("./feedbackRoutes");
 const router=express()
 
 router.use("/payment", paymentRoutes);
@@ -26,6 +27,7 @@ router.use("/orders", orderRouter);
 router.use("/delivery", deliveryRouter);
 router.use("/admin", adminRouter);
 router.use("/complaint", complaintRouter);
+router.use("/feedback", feedbackRouter);
 router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
 router.get("/auth/google/callback",passport.authenticate("google", { failureRedirect: "/" }),userController.googleRegister);
