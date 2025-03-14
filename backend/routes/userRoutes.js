@@ -9,5 +9,8 @@ userRoutes.put("/edit", userAuthentication,userController.profile);
 userRoutes.delete("/logout", userController.logout);
 userRoutes.get("/view", userAuthentication,userController.getUserProfile);
 userRoutes.get("/verify", userController.verifyEmail);
+userRoutes.post("/forgot", userController.forgotPassword);
+userRoutes.put("/reset", userController.resetPassword);
+userRoutes.put("/password", userAuthentication,userController.changePassword);
 
 module.exports = userRoutes;

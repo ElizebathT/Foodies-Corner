@@ -56,7 +56,72 @@ const userController={
       res.send("User created successfully")
   }),
   
-  verifyEmail: asyncHandler(async (req, res) => {
+  forgotPassword: asyncHandler(async (req, res) => {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        return res.status(404).json({ message: "User not found" });
+    }
+
+    // Generate Reset Token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = await bcrypt.hash(resetToken, 10);
+    
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour expiry
+    await user.save();
+
+    // Send Email
+    const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+        },
+    });
+
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}&email=${email}`;
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: "Password Reset Request",
+        text: `Click on this link to reset your password: ${resetLink}`,
+    };
+
+    transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: "Email could not be sent" });
+        }
+        res.json({ message: "Reset link sent to your email" });
+    });
+}),
+
+// Reset Password - Verifies Token & Updates Password
+resetPassword: asyncHandler(async (req, res) => {
+    const { email, token, newPassword } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user || !user.resetPasswordToken) {
+        return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    const isTokenValid = await bcrypt.compare(token, user.resetPasswordToken);
+    if (!isTokenValid || user.resetPasswordExpires < Date.now()) {
+        return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.json({ message: "Password reset successful" });
+}),
+
+verifyEmail: asyncHandler(async (req, res) => {
     const { token } = req.query;
 
     if (!token) {
@@ -185,6 +250,41 @@ const userController={
         res.send({
             message: "User details retrieved successfully",
             user
+        });
+    }),
+
+    changePassword: asyncHandler(async (req, res) => {
+        const userId = req.user.id;
+        const { oldPassword, newPassword } = req.body;
+    
+        // Validate input
+        if (!oldPassword || !newPassword) {
+            res.status(400);
+            throw new Error("Both old and new passwords are required");
+        }
+    
+        const user = await User.findById(userId);
+        if (!user) {
+            res.status(404);
+            throw new Error("User not found");
+        }
+    
+        // Check if old password matches
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            res.status(401);
+            throw new Error("Incorrect old password");
+        }
+    
+        // Hash the new password
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+    
+        // Save the updated user
+        await user.save();
+    
+        res.send({
+            message: "Password changed successfully",
         });
     })
 

@@ -36,11 +36,7 @@ const RestaurantSchema = new mongoose.Schema({
     type: String, 
     required: true 
   }],
-  opening_time: {
-    type: String,  
-    required: true
-  },
-  closing_time: {
+  opening_hours: {
     type: String,  
     required: true
   },
@@ -50,7 +46,23 @@ const RestaurantSchema = new mongoose.Schema({
   verified:{
     type:Boolean,
     default:false
-  }
+  },
+  license: {
+    type: String,  
+    required: true
+  },
+  fssai: {
+    type: String,  
+    required: true
+  },
+  gst: {
+    type: String,  
+    required: true
+  },
+  trade_license: {
+    type: String,  
+    required: true
+  },
 });
 
 
