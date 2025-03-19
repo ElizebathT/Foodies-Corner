@@ -6,13 +6,13 @@ const express=require('express')
 const nodemailer = require("nodemailer");
 require("dotenv").config()
 
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: process.env.EMAIL_USER, // Your email
-        pass: process.env.EMAIL_PASS  // App password (not actual email password)
-    }
-});
+// const transporter = nodemailer.createTransport({
+//     service: "gmail",
+//     auth: {
+//         user: process.env.EMAIL_USER, // Your email
+//         pass: process.env.EMAIL_PASS  // App password (not actual email password)
+//     }
+// });
 
 const userController={
     register : asyncHandler(async(req,res)=>{        
@@ -22,7 +22,7 @@ const userController={
           throw new Error("User already exists")
       }
       const hashed_password=await bcrypt.hash(password,10)
-      const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET_KEY, { expiresIn: "1d" });
+    //   const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET_KEY, { expiresIn: "1d" });
 
       const userCreated=await User.create({
           username,
@@ -40,20 +40,15 @@ const userController={
           id:userCreated.id
       }
       const token=jwt.sign(payload,process.env.JWT_SECRET_KEY)
-      res.cookie("token",token,{
-          maxAge:2*24*60*60*1000,
-          http:true,
-          sameSite:"none",
-          secure:false
-      })
-      const verificationLink = `${process.env.CLIENT_URL}/verify?token=${verificationToken}`;
-        await transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to: email,
-            subject: "Verify Your Email",
-            html: `<p>Click the link to verify your email: <a href="${verificationLink}">${verificationLink}</a></p>`
-        });
-      res.send("User created successfully")
+      
+    //   const verificationLink = `${process.env.CLIENT_URL}/verify?token=${verificationToken}`;
+    //     await transporter.sendMail({
+    //         from: process.env.EMAIL_USER,
+    //         to: email,
+    //         subject: "Verify Your Email",
+    //         html: `<p>Click the link to verify your email: <a href="${verificationLink}">${verificationLink}</a></p>`
+    //     });
+      res.json({token,role})
   }),
   
   forgotPassword: asyncHandler(async (req, res) => {
@@ -197,20 +192,14 @@ verifyEmail: asyncHandler(async (req, res) => {
         id:userExist.id
     }
     const token=jwt.sign(payload,process.env.JWT_SECRET_KEY)
-    res.cookie("token",token,{
-        maxAge:2*24*60*60*1000,
-        sameSite:"none",
-        http:true,
-        secure:false
-    })
-    
-    res.send("Login successful")
+    const role=userExist.role   
+    res.json({token,role})
     }),
-    logout:asyncHandler(async(req,res)=>{
+logout:asyncHandler(async(req,res)=>{
     res.clearCookie("token")
     res.send("User logged out")
     }),
-    profile:asyncHandler(async (req, res) => {
+profile:asyncHandler(async (req, res) => {
         const { username, password, address, role, dietaryPreferences, allergies } = req.body;
         const { userId } = req.user.id; 
         const user = await User.findOne({id:userId});

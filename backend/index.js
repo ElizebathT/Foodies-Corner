@@ -16,7 +16,12 @@ const http = require("http");
 const app = express();
 
 connectDB()
+const allowedOrigins = ["http://localhost:5173"];
 
+app.use(cors({
+    origin: allowedOrigins, 
+    credentials: true, 
+}));
 app.use(
     session({
         secret:"secret",
@@ -24,21 +29,21 @@ app.use(
         saveUninitialized:true
     })
 )
-app.use(passport.initialize());
-app.use(passport.session())
-passport.use(
-    new GoogleStrategy(
-        {
-            clientID: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: "/auth/google/callback"
-        },(accessToken, refreshToken, profile, done)=> {           
-            return done(null, profile);
-        }
-    )
-);
-passport.serializeUser((user,done)=>done(null,user))
-passport.deserializeUser((user,done)=>done(null,user))
+// app.use(passport.initialize());
+// app.use(passport.session())
+// passport.use(
+//     new GoogleStrategy(
+//         {
+//             clientID: process.env.GOOGLE_CLIENT_ID,
+//             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+//             callbackURL: "/auth/google/callback"
+//         },(accessToken, refreshToken, profile, done)=> {           
+//             return done(null, profile);
+//         }
+//     )
+// );
+// passport.serializeUser((user,done)=>done(null,user))
+// passport.deserializeUser((user,done)=>done(null,user))
 
 app.use(cookieParser())
 app.use(router)
