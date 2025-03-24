@@ -16,7 +16,7 @@ const restaurantController = {
     }),
 
     add: asyncHandler(async (req, res) => {
-        const { name, location, contact, cuisine, opening_hours, address, license, fssai, gst, trade_license } = req.body;
+        const { name, location, contact, cuisine, opening_hours, address, license, fssai, gst, closing_days,trade_license,notes } = req.body;
 
         const itemExist = await Restaurant.findOne({ owner: req.user.id, name });
         if (itemExist) {
@@ -34,11 +34,13 @@ const restaurantController = {
             name,
             location,
             googleMapsUrl,
+            notes,
             image: req.file?.path || "",
             contact,
             cuisine,
             opening_hours,
             address,
+            closing_days,
             owner: req.user.id,
             verified: false, // By default, a new restaurant is not verified
             license,

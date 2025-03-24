@@ -16,7 +16,7 @@ require("dotenv").config()
 
 const userController={
     register : asyncHandler(async(req,res)=>{        
-      const {username,email,password,role}=req.body
+      const {username,email,password,role,phone,address,vehicle,adhar,license,exp}=req.body
       const userExits=await User.findOne({email})
       if(userExits){
           throw new Error("User already exists")
@@ -30,7 +30,8 @@ const userController={
           password:hashed_password,
           verified: false,
           role,
-          verificationToken
+        //   verificationToken,
+          phone,address,vehicle,adhar,license,exp
       })
       if(!userCreated){
           throw new Error("User creation failed")

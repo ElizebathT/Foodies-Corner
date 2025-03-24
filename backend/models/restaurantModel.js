@@ -15,6 +15,12 @@ const RestaurantSchema = new mongoose.Schema({
   image: { 
     type: String 
   },
+  closing_days: { 
+    type: String 
+  },
+  notes: { 
+    type: String 
+  },
   menu: [
     { type: mongoose.Schema.Types.ObjectId, 
       ref: "MenuItem" 

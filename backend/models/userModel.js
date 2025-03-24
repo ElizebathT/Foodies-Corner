@@ -41,6 +41,21 @@ const UserSchema = new mongoose.Schema({
     type: Boolean, 
     default: false 
   },
+  phone:{
+    type: String,
+  },
+  vehicle:{
+    type: String,
+  },
+  adhar:{
+    type: String,
+  },
+  license:{
+    type: String,
+  },
+  exp:{
+    type: Number,
+  },
   verificationToken: String
 });
 
