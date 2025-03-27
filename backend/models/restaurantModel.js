@@ -57,18 +57,6 @@ const RestaurantSchema = new mongoose.Schema({
     type: String,  
     required: true
   },
-  fssai: {
-    type: String,  
-    required: true
-  },
-  gst: {
-    type: String,  
-    required: true
-  },
-  trade_license: {
-    type: String,  
-    required: true
-  },
 });
 
 

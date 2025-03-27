@@ -57,19 +57,14 @@ const menuController = {
 
     // Get menu items by restaurant ID
     getMenuItemsByRestaurant: asyncHandler(async (req, res) => {
-        const {restaurantName } = req.body;
-        const restaurantExist = await Restaurant.findOne({name: restaurantName});
+        const {id} = req.body;
+        const restaurantExist = await Restaurant.findById(id);
         
         if(!restaurantExist){
             res.send('Restaurant not found')
         }
         const restaurant=restaurantExist._id
-        const menuItems = await MenuItem.find({ restaurant: restaurant })
-        
-        if (menuItems.length === 0) {
-            return res.send("No menu items found for this restaurant");
-        }
-        
+        const menuItems = await MenuItem.find({ restaurant: restaurant })        
         res.send(menuItems);
     }),
 
